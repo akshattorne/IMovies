@@ -1,39 +1,37 @@
 services:
-  # ── Backend API ──────────────────────────────────────────────────────────────
+  # ── Backend API (Node.js) ────────────────────────────────────────────────────
   - type: web
     name: imovies-server
-    runtime: docker
-    dockerfilePath: ./server/Dockerfile
-    dockerContext: ./server
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node server.js
     plan: free
+    region: singapore
     envVars:
-      - key: PORT
-        value: 5000
       - key: MONGO_URI
-        sync: false          # set manually in Render dashboard / provided at deploy
+        sync: false
       - key: JWT_SECRET
-        generateValue: true  # Render generates a secure random value
+        generateValue: true
       - key: JWT_EXPIRES_IN
         value: 7d
       - key: CLIENT_URL
-        sync: false          # set to the Render static-site URL after first deploy
+        value: https://imovies-client.onrender.com
+      - key: NODE_ENV
+        value: production
       - key: SEAT_HOLD_MINUTES
         value: 5
-      - key: TMDB_API_KEY
-        value: ""
-    healthCheckPath: /api/movies
 
-  # ── Frontend (static site built with Vite) ────────────────────────────────
+  # ── Frontend (Vite static site) ──────────────────────────────────────────────
   - type: web
     name: imovies-client
     runtime: static
-    buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
     rootDir: client
-    headers:
-      - path: /*
-        name: Cache-Control
-        value: no-cache
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://imovies-serverr.onrender.com
     routes:
       - type: rewrite
         source: /*
