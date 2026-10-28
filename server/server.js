@@ -31,9 +31,12 @@ io.on('connection', (socket) => {
 });
 
 app.use(helmet());
-app.use(cors({ origin: clientUrl, credentials: true }));
+app.use(cors({ origin: (origin, cb) => cb(null, true), credentials: true }));
 app.use(express.json({ limit: '1mb' }));
 if (process.env.NODE_ENV !== 'test') app.use(morgan('dev'));
+
+// Health-check – Render (and any load balancer) pings GET /
+app.get('/', (_req, res) => res.json({ status: 'ok', app: 'IMovies API' }));
 
 app.use('/api', apiLimiter, routes);
 app.use(notFound);
