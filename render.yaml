@@ -1,0 +1,40 @@
+services:
+  # ── Backend API ──────────────────────────────────────────────────────────────
+  - type: web
+    name: imovies-server
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
+    plan: free
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: MONGO_URI
+        sync: false          # set manually in Render dashboard / provided at deploy
+      - key: JWT_SECRET
+        generateValue: true  # Render generates a secure random value
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CLIENT_URL
+        sync: false          # set to the Render static-site URL after first deploy
+      - key: SEAT_HOLD_MINUTES
+        value: 5
+      - key: TMDB_API_KEY
+        value: ""
+    healthCheckPath: /api/movies
+
+  # ── Frontend (static site built with Vite) ────────────────────────────────
+  - type: web
+    name: imovies-client
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    rootDir: client
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
