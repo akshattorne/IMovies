@@ -2,8 +2,9 @@
 
 A full-stack cinema ticket booking platform built with the MERN stack. Browse movies, pick a showtime, choose exact seats on a live seat map, pay (simulated) and keep your tickets.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Click%20Here-brightgreen?style=for-the-badge)](https://tablet-detract-blazing.ngrok-free.dev)
-[![GitHub](https://img.shields.io/badge/GitHub-akshattorne%2FIMovies-blue?style=for-the-badge&logo=github)](https://github.com/akshattorne/IMovies)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-imovies--client.onrender.com-brightgreen?style=for-the-badge)](https://imovies-client.onrender.com)
+[![Backend API](https://img.shields.io/badge/Backend%20API-imovies--serverr.onrender.com-blue?style=for-the-badge)](https://imovies-serverr.onrender.com)
+[![GitHub](https://img.shields.io/badge/GitHub-akshattorne%2FIMovies-black?style=for-the-badge&logo=github)](https://github.com/akshattorne/IMovies)
 
 ---
 
