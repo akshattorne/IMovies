@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # IMovies
 
 A MERN cinema booking site: browse movies, pick a showtime, choose exact seats on a live seat map, pay (simulated) and keep your tickets.
@@ -138,6 +137,4 @@ Seats are real documents with a status (`available`, `locked`, `booked`). Lockin
 ## Ideas for next steps
 
 Multi-language poster images, food add-ons, email tickets, promo codes, seat-map editor for admins, automated tests (Jest + Supertest for the API).
-=======
-# IMovies
->>>>>>> 3c701bfa6c3e7961a5c27db03cd1f32d93fe3179
+
