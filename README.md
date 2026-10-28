@@ -1,140 +1,193 @@
-# IMovies
+# IMovies 🎬
 
-A MERN cinema booking site: browse movies, pick a showtime, choose exact seats on a live seat map, pay (simulated) and keep your tickets.
+A full-stack cinema ticket booking platform built with the MERN stack. Browse movies, pick a showtime, choose exact seats on a live seat map, pay (simulated) and keep your tickets.
 
-- **Frontend:** React 18, Vite, Bootstrap 5 plus custom CSS, Redux Toolkit, React Router, Socket.io client
-- **Backend:** Express, MongoDB (Mongoose), JWT, bcryptjs, Socket.io, Helmet, express-rate-limit
-- **Look:** dark cinematic theme, generated poster art (no image files needed), curved-screen seat map, paper ticket
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Click%20Here-brightgreen?style=for-the-badge)](https://tablet-detract-blazing.ngrok-free.dev)
+[![GitHub](https://img.shields.io/badge/GitHub-akshattorne%2FIMovies-blue?style=for-the-badge&logo=github)](https://github.com/akshattorne/IMovies)
 
-## Run it
+---
 
-**Windows, one click:** install Node.js (LTS) and MongoDB Community Server once, then double-click `start-imovies.bat`. On the first run it creates `server/.env` with a secret key, installs packages, adds demo data and opens the site at http://localhost:5173. To stop it, close the two command windows it opens.
+## ✨ Features
 
-**Manual steps (any system):**
+- **Browse & filter** movies by title, genre, language, city, date and sort order
+- **Live seat map** — seats booked by others appear instantly via Socket.io
+- **Seat holds** — seats held for 5 minutes while you pay; auto-released on timeout
+- **Simulated payments** — card, UPI or wallet. Test failures: card ending `0000`, UPI starting `fail`
+- **Tickets & history** — upcoming, past and cancelled; cancel up to 2 hours before showtime
+- **Notifications** — bell icon for booking, payment and cancellation events
+- **Admin panel** (`/admin`) — revenue stats, movie CRUD, theatre management, show scheduling
 
-You need Node 18+ and MongoDB running locally (or a MongoDB Atlas connection string).
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 18, Vite, Redux Toolkit, React Router, Bootstrap 5, Socket.io client |
+| **Backend** | Node.js, Express, Mongoose, JWT, bcryptjs, Socket.io, Helmet, express-rate-limit |
+| **Database** | MongoDB (local or Atlas) |
+| **Deployment** | Docker Compose (local) · Render static site (frontend) · MongoDB Atlas (cloud DB) |
+
+---
+
+## 🚀 Quick Start
+
+### Option A — Docker (recommended, no Node or MongoDB install needed)
 
 ```bash
-# 1. API
-cd server
-cp .env.example .env        # then set JWT_SECRET to a long random string
-npm install
-npm run seed                # demo movies, theatres, a week of shows, 2 accounts
-npm run dev                 # http://localhost:5000
+git clone https://github.com/akshattorne/IMovies.git
+cd IMovies
+cp .env.example .env          # set JWT_SECRET to any long random string
+docker compose up -d --build  # starts MongoDB, API and website
+```
 
-# 2. Website (new terminal)
+Open **http://localhost:8080**. Demo data (movies, theatres, shows, accounts) is seeded automatically.
+
+Stop: `docker compose down` · Delete all data: `docker compose down -v`
+
+---
+
+### Option B — Manual (Node 18+ required)
+
+```bash
+# Terminal 1 — API
+cd server
+cp .env.example .env          # set JWT_SECRET
+npm install
+npm run seed                  # demo movies, theatres, shows, accounts
+npm run dev                   # http://localhost:5000
+
+# Terminal 2 — Frontend
 cd client
 npm install
-npm run dev                 # http://localhost:5173
+npm run dev                   # http://localhost:5173
 ```
 
-Open http://localhost:5173. The dev server proxies `/api` and the socket connection to port 5000, so there is nothing else to configure.
+Open **http://localhost:5173**. The Vite dev server proxies `/api` and the socket to port 5000.
 
-### Using MongoDB Atlas (cloud) instead of a local database
+---
 
-1. In Atlas, create a free cluster (M0).
-2. **Database Access**: add a database user and note the password. Use letters and numbers only, or URL-encode special characters.
-3. **Network Access**: add your IP address (or `0.0.0.0/0` while testing).
-4. **Connect > Drivers**: copy the connection string and put the database name `imovies` before the `?`.
-5. Open `server/.env` (the .bat creates it on first run) and set:
-   `MONGO_URI=mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/imovies?retryWrites=true&w=majority`
+### Option C — MongoDB Atlas (cloud database)
 
-`start-imovies.bat` detects an Atlas string and skips the local MongoDB step. Never share or commit this string, it contains your password.
+1. Create a free M0 cluster at [cloud.mongodb.com](https://cloud.mongodb.com)
+2. **Database Access** → add a DB user, note the password
+3. **Network Access** → add `0.0.0.0/0` (allow from anywhere)
+4. **Connect → Drivers** → copy the connection string, insert `imovies` before the `?`
+5. Set in `server/.env`:
+   ```
+   MONGO_URI=mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/imovies?retryWrites=true&w=majority
+   ```
 
-### Run with Docker (no Node or MongoDB install needed)
+---
 
-Install Docker Desktop and start it, then double-click `start-docker.bat` (Windows) or run `docker compose up -d --build` after copying `.env.example` to `.env` and setting `JWT_SECRET`. It starts MongoDB, the API and the website, loads the demo data and opens http://localhost:8080.
+## 🔑 Demo Accounts
 
-- Stop: `stop-docker.bat` (data is kept). Delete all data too: `docker compose down -v`
-- Logs: `docker compose logs -f server`
-- MongoDB Atlas: put `MONGO_URI=...` in the root `.env` file. The bundled database still starts but is not used
-- The first build takes a few minutes. After code changes, run `start-docker.bat` again to rebuild
-- If you open the site from another address than `localhost:8080`, set `CLIENT_URL` in `.env` to that address
+| Role  | Email               | Password  |
+|-------|---------------------|-----------|
+| Admin | admin@imovies.com   | Admin@123 |
+| User  | user@imovies.com    | User@123  |
 
-### Real movies and posters
+> Change both passwords before putting this anywhere public.  
+> Reset everything: `npm run seed:reset`
 
-Movies, posters, descriptions and trailers are real. The importer tries **TMDB** first when `TMDB_API_KEY` is set (richest data: cast, ratings, banners). If TMDB is unreachable or no key is set, it automatically uses **Apple iTunes**, which needs no key and is rarely blocked. If both fail, fictional placeholder movies are used.
+---
 
-#### Optional: TMDB key
+## 🎥 Real Movies & Posters
 
-The site shows real, currently playing movies for India with posters, banners, cast, ratings and trailers from [TMDB](https://www.themoviedb.org). This needs a free key:
+Movies, posters, descriptions and trailers are real. The importer tries **TMDB** first (when `TMDB_API_KEY` is set), then falls back to **Apple iTunes** (no key needed), then fictional placeholders.
 
-1. Create a free account at https://www.themoviedb.org
-2. Open https://www.themoviedb.org/settings/api, request an API key (choose Developer, personal or educational use) and copy the **API Key**
-3. Paste it when `start-imovies.bat` or `start-docker.bat` asks, or add `TMDB_API_KEY=your_key` to `server/.env` (root `.env` for Docker) and run `npm run import:movies`
+#### Optional: TMDB API Key (richest data — cast, ratings, banners)
 
-To refresh the movie list later, double-click `update-movies.bat` (Docker: `docker compose exec server node scripts/importMovies.js`). Without a key, fictional placeholder movies are used. Showtimes, theatres and seat availability are generated, because real cinema schedules are not available from any free public source. Add your own theatres in the admin panel.
+1. Create a free account at [themoviedb.org](https://www.themoviedb.org)
+2. Go to Settings → API → request a Developer key
+3. Add to `server/.env`: `TMDB_API_KEY=your_key_here`
+4. Run: `npm run import:movies` (or `docker compose exec server node scripts/importMovies.js`)
 
-### Demo accounts
+---
 
-| Role  | Email             | Password  |
-|-------|-------------------|-----------|
-| Admin | admin@imovies.com | Admin@123 |
-| User  | user@imovies.com  | User@123  |
-
-Change both passwords before putting this anywhere public. `npm run seed:reset` wipes the database and reseeds it.
-
-## What you can do
-
-- **Browse and filter** by title, genre, language, city, date and sort order, with pagination
-- **Pick a show** on a 7-day date strip, grouped by theatre, with "filling fast" and "sold out" states
-- **Choose seats** on a map with Standard, Premium and Recliner tiers. Seats other people book appear instantly (Socket.io)
-- **Seat holds:** pressing Continue holds your seats for 5 minutes (`SEAT_HOLD_MINUTES`). Expired holds are released automatically
-- **Pay** by card, UPI or wallet (simulated). Test failures: card ending `0000`, or a UPI ID starting `fail`
-- **Tickets and history:** upcoming, past and cancelled tabs. Cancel up to 2 hours before the show; seats are released and the payment is marked refunded
-- **Notifications:** bell in the navbar for booking, payment and cancellation updates
-- **Admin panel** (`/admin`): revenue overview, movie CRUD, theatre creation, show scheduling (screen clash detection), all bookings
-
-## Project layout
+## 📁 Project Structure
 
 ```
-server/
-  config/db.js
-  models/        User Movie Theatre Show Seat Booking Payment Notification
-  controllers/   auth movie theatre show booking admin
-  middleware/    auth (protect, adminOnly, optionalAuth), error, rateLimit
-  routes/index.js
-  utils/         helpers, realtime (socket broadcast)
-  seed.js  server.js
-client/
-  src/
-    pages/       Home Movies MovieDetail SeatSelection Checkout BookingView MyBookings Auth Admin
-    components/  Navbar Poster MovieCard Modal Pager DateStrip Ticket ProtectedRoute Footer
-    features/authSlice.js   context/CityContext.jsx   index.css
+IMovies/
+├── server/
+│   ├── config/db.js
+│   ├── models/          User · Movie · Theatre · Show · Seat · Booking · Payment · Notification
+│   ├── controllers/     auth · movie · theatre · show · booking · admin
+│   ├── middleware/      auth · error · rateLimit
+│   ├── routes/index.js
+│   ├── utils/           helpers · realtime · tmdb · itunes · showGenerator
+│   ├── seed.js
+│   └── server.js
+├── client/
+│   └── src/
+│       ├── pages/       Home · Movies · MovieDetail · SeatSelection · Checkout · MyBookings · Auth · Admin
+│       ├── components/  Navbar · Poster · MovieCard · Modal · DateStrip · Ticket · Footer
+│       ├── features/    authSlice.js
+│       └── context/     CityContext.jsx
+├── docker-compose.yml
+└── render.yaml
 ```
 
-## API summary
+---
 
-| Method | Path | Access |
-|---|---|---|
-| POST | `/api/auth/register`, `/api/auth/login` | public (rate limited) |
-| GET/PUT | `/api/auth/me` | signed in |
-| GET | `/api/movies`, `/api/movies/filters`, `/api/movies/:id` | public |
-| POST/PUT/DELETE | `/api/movies`, `/api/movies/:id` | admin |
-| GET | `/api/theatres` | public. POST/PUT/DELETE: admin |
-| GET | `/api/shows`, `/api/shows/:id` | public (seat map included) |
-| POST/PUT/DELETE | `/api/shows` | admin |
-| POST | `/api/shows/:id/lock`, `/unlock` | signed in |
-| POST | `/api/bookings` | signed in |
-| GET | `/api/bookings/mine`, `/api/bookings/:id` | signed in (owner or admin) |
-| PUT | `/api/bookings/:id/cancel` | signed in (owner or admin) |
-| GET/PUT | `/api/notifications`, `/api/notifications/read` | signed in |
-| GET | `/api/admin/stats`, `/api/admin/bookings` | admin |
+## 🔌 API Reference
 
-## How double-booking is prevented
+| Method | Endpoint | Access |
+|--------|----------|--------|
+| POST | `/api/auth/register` `/api/auth/login` | Public (rate limited) |
+| GET/PUT | `/api/auth/me` | Authenticated |
+| GET | `/api/movies` `/api/movies/filters` `/api/movies/:id` | Public |
+| POST/PUT/DELETE | `/api/movies/:id` | Admin |
+| GET | `/api/theatres` | Public. POST/PUT/DELETE: Admin |
+| GET | `/api/shows` `/api/shows/:id` | Public (seat map included) |
+| POST/PUT/DELETE | `/api/shows` | Admin |
+| POST | `/api/shows/:id/lock` `/unlock` | Authenticated |
+| POST | `/api/bookings` | Authenticated |
+| GET | `/api/bookings/mine` `/api/bookings/:id` | Authenticated |
+| PUT | `/api/bookings/:id/cancel` | Authenticated |
+| GET | `/api/admin/stats` `/api/admin/bookings` | Admin |
 
-Seats are real documents with a status (`available`, `locked`, `booked`). Locking uses a single conditional `updateMany` that only claims seats that are free, expired, or already yours, then verifies it got all of them. If someone else won any seat, the claim is rolled back and the user is told. Booking only converts holds that still belong to the paying user. A 15-second sweep releases expired holds and broadcasts them to everyone watching.
+---
 
-## Security notes
+## 🔒 How Double-Booking is Prevented
 
-- Passwords hashed with bcrypt. Public sign-up can never create an admin (role is not read from the request)
-- JWT in the `Authorization` header, verified on every protected route. Admin routes also check the role
-- Helmet headers, CORS limited to `CLIENT_URL`, global rate limit plus a stricter one on sign-in
-- Server-side validation on auth, seat limits, show clashes and cancellation windows
-- The token is stored in `localStorage` for simplicity. For production, consider an httpOnly cookie
-- Payments are simulated. Replace `simulateGateway` in `bookingController.js` with Razorpay or Stripe before taking real money
+Seats are MongoDB documents with status `available | locked | booked`. A single conditional `updateMany` claims only seats that are free or expired, then verifies it got all of them. If someone else wins any seat, the claim is rolled back. A 15-second background sweep releases expired holds and broadcasts updates to all connected clients.
 
-## Ideas for next steps
+---
 
-Multi-language poster images, food add-ons, email tickets, promo codes, seat-map editor for admins, automated tests (Jest + Supertest for the API).
+## 🛡️ Security Notes
 
+- Passwords hashed with **bcrypt**
+- **JWT** in `Authorization` header, verified on every protected route
+- **Helmet** headers, **CORS** restricted to `CLIENT_URL`
+- Global rate limit + stricter limit on sign-in route
+- Token stored in `localStorage` — for production, consider an httpOnly cookie
+- Payments are **simulated**. Replace `simulateGateway` in `bookingController.js` with Razorpay or Stripe before taking real money
+
+---
+
+## 🗺️ Environment Variables
+
+### `server/.env`
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PORT` | API server port | `5000` |
+| `MONGO_URI` | MongoDB connection string | `mongodb://mongo:27017/imovies` |
+| `JWT_SECRET` | Long random secret for signing tokens | *(required)* |
+| `JWT_EXPIRES_IN` | Token lifetime | `7d` |
+| `CLIENT_URL` | Frontend origin for CORS | `http://localhost:5173` |
+| `SEAT_HOLD_MINUTES` | Minutes a seat is held during checkout | `5` |
+| `TMDB_API_KEY` | Optional — enables rich movie data | *(empty)* |
+
+---
+
+## 💡 Ideas for Next Steps
+
+- Multi-language support
+- Food & beverage add-ons
+- Email tickets (Nodemailer / SendGrid)
+- Promo codes & loyalty points
+- Seat-map editor in admin panel
+- Automated tests (Jest + Supertest)
+- Real payment gateway (Razorpay / Stripe)
